@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Registrar · Student Enrollment</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <div class="app">
+
+    <!-- ============ TOP BAR ============ -->
+    <header class="topbar">
+      <div class="topbar__title">
+        <p class="eyebrow">Registrar's Office</p>
+        <h1>Student Enrollment</h1>
+      </div>
+      <div class="topbar__status">
+        <span id="mode-pill" class="pill pill--pending">
+          <span class="pill__dot"></span>
+          <span id="mode-pill-label">Connecting…</span>
+        </span>
+      </div>
+    </header>
+
+    <!-- ============ STAT CARDS ============ -->
+    <section class="stats" aria-label="Enrollment summary">
+      <div class="stat-card" data-tab="TOT">
+        <p class="stat-card__label">Total students</p>
+        <p class="stat-card__value" id="stat-total">0</p>
+        <p class="stat-card__meta">across all courses</p>
+      </div>
+      <div class="stat-card" data-tab="CRS">
+        <p class="stat-card__label">Courses offered</p>
+        <p class="stat-card__value" id="stat-courses">0</p>
+        <p class="stat-card__meta" id="stat-courses-meta">no enrollments yet</p>
+      </div>
+      <div class="stat-card" data-tab="WK">
+        <p class="stat-card__label">Enrolled this week</p>
+        <p class="stat-card__value" id="stat-week">0</p>
+        <p class="stat-card__meta">last 7 days</p>
+      </div>
+      <div class="stat-card" data-tab="NEW">
+        <p class="stat-card__label">Most recent</p>
+        <p class="stat-card__value stat-card__value--text" id="stat-latest">—</p>
+        <p class="stat-card__meta" id="stat-latest-meta">no students yet</p>
+      </div>
+    </section>
+
+    <!-- ============ MAIN GRID ============ -->
+    <main class="grid">
+
+      <!-- ENROLLMENT FORM -->
+      <section class="panel form-panel" aria-labelledby="enroll-heading">
+        <h2 id="enroll-heading" class="panel-title">Enroll a student</h2>
+        <p class="panel-subtitle">Add a new record to the register.</p>
+
+        <form id="reg-form" novalidate>
+          <div class="field">
+            <label for="fullName">Full name</label>
+            <input type="text" id="fullName" name="fullName" placeholder="e.g. Ananya Sharma" required autocomplete="off" />
+          </div>
+
+          <div class="field-row">
+            <div class="field">
+              <label for="rollNo">Roll number</label>
+              <input type="text" id="rollNo" name="rollNo" placeholder="e.g. 2026-CS-014" required autocomplete="off" />
+            </div>
+            <div class="field">
+              <label for="course">Course</label>
+              <select id="course" name="course" required>
+                <option value="" disabled selected>Choose one</option>
+                <option>Computer Science</option>
+                <option>Commerce</option>
+                <option>Arts &amp; Humanities</option>
+                <option>Science</option>
+                <option>Mathematics</option>
+                <option>Other</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="email">Email address</label>
+            <input type="email" id="email" name="email" placeholder="student@example.com" required autocomplete="off" />
+          </div>
+
+          <div class="field">
+            <label for="phone">Phone <span class="optional">(optional)</span></label>
+            <input type="tel" id="phone" name="phone" placeholder="e.g. +91 98765 43210" autocomplete="off" />
+          </div>
+
+          <button type="submit" id="submit-btn" class="btn btn--primary">
+            <span class="btn-label">Enroll student</span>
+          </button>
+        </form>
+      </section>
+
+      <!-- COURSE DISTRIBUTION -->
+      <section class="panel chart-panel" aria-labelledby="chart-heading">
+        <h2 id="chart-heading" class="panel-title">Course distribution</h2>
+        <p class="panel-subtitle">Share of students by course.</p>
+        <div id="chart-body" class="chart-body">
+          <p class="chart-empty" id="chart-empty">Enroll a student to see the breakdown.</p>
+        </div>
+      </section>
+
+      <!-- REGISTER TABLE -->
+      <section class="panel register-panel" aria-labelledby="register-heading">
+        <div class="register-panel__head">
+          <div>
+            <h2 id="register-heading" class="panel-title">Register</h2>
+            <p class="panel-subtitle">All enrolled students.</p>
+          </div>
+          <div class="register-panel__controls">
+            <input type="search" id="search-input" class="search-input" placeholder="Search name, roll no., course, email…" aria-label="Search students" />
+            <button type="button" id="export-btn" class="btn btn--ghost" title="Download CSV">
+              <span class="btn-label">Export CSV</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="table-wrap">
+          <table class="ledger" id="ledger-table">
+            <thead>
+              <tr>
+                <th class="col-num">#</th>
+                <th class="sortable" data-sort="fullName">Name <span class="sort-arrow"></span></th>
+                <th class="sortable" data-sort="rollNo">Roll No. <span class="sort-arrow"></span></th>
+                <th class="sortable" data-sort="course">Course <span class="sort-arrow"></span></th>
+                <th>Email</th>
+                <th class="sortable" data-sort="createdAt">Enrolled <span class="sort-arrow"></span></th>
+                <th class="col-action"></th>
+              </tr>
+            </thead>
+            <tbody id="ledger-body"></tbody>
+          </table>
+
+          <div id="empty-state" class="empty-state">
+            <p id="empty-state-title">No students enrolled yet.</p>
+            <p class="empty-state__sub" id="empty-state-sub">Use the form to add the first record.</p>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <footer class="app-footer">
+      <p id="footer-note">Setting up the database…</p>
+    </footer>
+  </div>
+
+  <!-- EDIT MODAL -->
+  <div class="modal-overlay" id="edit-overlay" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="edit-heading">
+      <h2 id="edit-heading">Edit student</h2>
+      <form id="edit-form">
+        <input type="hidden" id="edit-id" />
+        <div class="field">
+          <label for="edit-fullName">Full name</label>
+          <input type="text" id="edit-fullName" required />
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label for="edit-rollNo">Roll number</label>
+            <input type="text" id="edit-rollNo" required />
+          </div>
+          <div class="field">
+            <label for="edit-course">Course</label>
+            <select id="edit-course" required>
+              <option>Computer Science</option>
+              <option>Commerce</option>
+              <option>Arts &amp; Humanities</option>
+              <option>Science</option>
+              <option>Mathematics</option>
+              <option>Other</option>
+            </select>
+          </div>
+        </div>
+        <div class="field">
+          <label for="edit-email">Email address</label>
+          <input type="email" id="edit-email" required />
+        </div>
+        <div class="field">
+          <label for="edit-phone">Phone <span class="optional">(optional)</span></label>
+          <input type="tel" id="edit-phone" />
+        </div>
+        <div class="modal-actions">
+          <button type="button" id="edit-cancel" class="btn btn--ghost">Cancel</button>
+          <button type="submit" class="btn btn--primary">Save changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- TOASTS -->
+  <div class="toast-stack" id="toast-stack" aria-live="polite"></div>
+
+  <!-- Firebase (only used automatically if firebase-config.js has real keys) -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
+  <script src="firebase-config.js"></script>
+  <script src="db-adapter.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
