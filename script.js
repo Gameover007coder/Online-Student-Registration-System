@@ -182,6 +182,17 @@ editForm.addEventListener('submit', async (e) => {
   }
 });
 
+// ---- Course identity (color + initials helpers) ----
+function courseColorVar(course) {
+  const key = (course || 'Other').toLowerCase().replace(/[^a-z]+/g, '-').replace(/^-|-$/g, '');
+  return `var(--c-${key}, var(--text-faint))`;
+}
+function initials(name) {
+  const parts = (name || '').trim().split(/\s+/).filter(Boolean);
+  if (!parts.length) return '?';
+  return (parts[0][0] + (parts.length > 1 ? parts[parts.length - 1][0] : '')).toUpperCase();
+}
+
 // ---- Rendering ----
 function getVisibleRows() {
   let rows = [...allStudents];
@@ -234,7 +245,7 @@ function renderStats() {
   if (total) {
     const latest = allStudents[0]; // already sorted desc by createdAt from Store
     statLatest.textContent = latest.fullName;
-    statLatestMeta.textContent = latest.course;
+    statLatestMeta.innerHTML = `<span class="course-badge" style="--course-color:${courseColorVar(latest.course)}"><span class="course-badge__dot"></span>${escapeHtml(latest.course)}</span>`;
   } else {
     statLatest.textContent = '—';
     statLatestMeta.textContent = 'no students yet';
@@ -256,8 +267,9 @@ function renderChart() {
   chartBody.innerHTML = entries
     .map(([course, count]) => {
       const pct = Math.round((count / max) * 100);
+      const color = courseColorVar(course);
       return `
-        <div class="chart-row">
+        <div class="chart-row" style="--course-color:${color}">
           <div class="chart-row__labels">
             <span class="chart-row__name">${escapeHtml(course)}</span>
             <span class="chart-row__count">${count}</span>
@@ -293,11 +305,17 @@ function renderTable() {
       ? date.toLocaleDateString(undefined, { day: '2-digit', month: 'short', year: 'numeric' })
       : '—';
 
+    const color = courseColorVar(s.course);
     tr.innerHTML = `
       <td class="col-num">${i + 1}</td>
-      <td class="student-name">${escapeHtml(s.fullName)}</td>
+      <td class="student-name">
+        <div class="student-cell">
+          <span class="avatar" style="--course-color:${color}">${initials(s.fullName)}</span>
+          <span>${escapeHtml(s.fullName)}</span>
+        </div>
+      </td>
       <td class="student-roll">${escapeHtml(s.rollNo)}</td>
-      <td>${escapeHtml(s.course)}</td>
+      <td><span class="course-badge" style="--course-color:${color}"><span class="course-badge__dot"></span>${escapeHtml(s.course)}</span></td>
       <td class="student-email">${escapeHtml(s.email)}</td>
       <td class="student-date">${dateLabel}</td>
       <td class="col-action">
