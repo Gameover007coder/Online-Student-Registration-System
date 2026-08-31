@@ -15,6 +15,18 @@
   --red: #E2685A;
   --red-dim: rgba(226, 104, 90, 0.14);
   --green: #6FBF8B;
+  --violet: #9C8CE0;
+  --violet-dim: rgba(156, 140, 224, 0.16);
+  --rose: #D98FB0;
+  --rose-dim: rgba(217, 143, 176, 0.16);
+
+  /* per-course identity colors, used for avatars/badges/chart bars */
+  --c-computer-science: var(--teal);
+  --c-commerce: var(--amber);
+  --c-arts-humanities: var(--rose);
+  --c-science: var(--green);
+  --c-mathematics: var(--violet);
+  --c-other: var(--text-dim);
 
   --radius: 10px;
   --radius-lg: 14px;
@@ -25,6 +37,13 @@
 }
 
 * { box-sizing: border-box; }
+
+::selection { background: var(--teal-dim); color: var(--text); }
+
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 999px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-faint); }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
@@ -116,7 +135,21 @@ body {
   border-radius: var(--radius);
   padding: 20px 18px 16px;
   overflow: visible;
+  transition: border-color 0.2s, transform 0.2s;
 }
+.stat-card:hover {
+  border-color: var(--border-strong);
+  transform: translateY(-2px);
+}
+.stat-card__icon {
+  position: absolute;
+  top: 18px;
+  right: 16px;
+  width: 17px;
+  height: 17px;
+  color: var(--text-faint);
+}
+.stat-card__icon svg { width: 100%; height: 100%; }
 .stat-card::before {
   content: attr(data-tab);
   position: absolute;
@@ -256,7 +289,8 @@ select option { background: var(--surface-alt); color: var(--text); }
   background: var(--amber);
   color: #1B1405;
 }
-.btn--primary:hover:not(:disabled) { background: #eab55c; }
+.btn--primary:hover:not(:disabled) { background: #eab55c; transform: translateY(-1px); }
+.btn--primary svg { width: 15px; height: 15px; }
 
 .btn--ghost {
   background: transparent;
@@ -274,9 +308,17 @@ select option { background: var(--surface-alt); color: var(--text); }
 .chart-row__labels {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   font-size: 12.5px;
 }
-.chart-row__name { color: var(--text); font-weight: 500; }
+.chart-row__name { color: var(--text); font-weight: 500; display: inline-flex; align-items: center; gap: 7px; }
+.chart-row__name::before {
+  content: '';
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--course-color, var(--text-faint));
+}
 .chart-row__count { color: var(--text-dim); font-family: var(--font-mono); }
 .chart-row__track {
   height: 8px;
@@ -287,7 +329,7 @@ select option { background: var(--surface-alt); color: var(--text); }
 .chart-row__fill {
   height: 100%;
   border-radius: 999px;
-  background: linear-gradient(90deg, var(--teal), var(--amber));
+  background: var(--course-color, var(--teal));
   width: 0%;
   transition: width 0.6s ease;
 }
@@ -347,10 +389,48 @@ select option { background: var(--surface-alt); color: var(--text); }
 .col-num { width: 32px; color: var(--text-faint); font-family: var(--font-mono); }
 .col-action { width: 76px; }
 
+.student-cell { display: flex; align-items: center; gap: 10px; }
+.avatar {
+  flex: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--bg);
+  background: var(--course-color, var(--text-faint));
+}
 .student-name { font-weight: 600; }
 .student-roll { font-family: var(--font-mono); color: var(--amber); font-size: 12.5px; }
 .student-email { color: var(--text-dim); }
 .student-date { color: var(--text-faint); font-size: 12px; white-space: nowrap; }
+
+.course-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  color: var(--text);
+}
+.course-badge__dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--course-color, var(--text-faint));
+  flex: none;
+}
+
+.ledger tbody tr {
+  animation: row-in 0.28s ease both;
+}
+@keyframes row-in {
+  from { opacity: 0; transform: translateY(3px); }
+  to { opacity: 1; transform: translateY(0); }
+}
 
 .row-actions { display: flex; gap: 4px; }
 .icon-btn {
@@ -369,10 +449,18 @@ select option { background: var(--surface-alt); color: var(--text); }
 .empty-state {
   display: none;
   text-align: center;
-  padding: 44px 12px 28px;
+  padding: 40px 12px 30px;
   color: var(--text-dim);
 }
 .empty-state.visible { display: block; }
+.empty-state__icon {
+  width: 34px;
+  height: 34px;
+  margin: 0 auto 12px;
+  color: var(--text-faint);
+  opacity: 0.7;
+}
+.empty-state__icon svg { width: 100%; height: 100%; }
 .empty-state__sub { font-size: 12.5px; color: var(--text-faint); margin-top: 4px; }
 
 /* ---------- Footer ---------- */
@@ -405,6 +493,11 @@ select option { background: var(--surface-alt); color: var(--text); }
   border-radius: var(--radius-lg);
   padding: 24px;
   box-shadow: 0 30px 60px rgba(0,0,0,0.45);
+  animation: modal-in 0.18s ease;
+}
+@keyframes modal-in {
+  from { opacity: 0; transform: translateY(8px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
 }
 .modal h2 {
   font-family: var(--font-display);
